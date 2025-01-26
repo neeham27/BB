@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reserve a Seat</title>
+  <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+<body>
+  <header>Reserve Your Seat</header>
+  <main>
+    <h1>Book Your Cafeteria Seat</h1>
+    <form id="reservationForm">
+      <label for="seat_ids">Seat IDs (comma separated):</label>
+      <input type="text" name="seat_ids" id="seat_ids" placeholder="e.g., 101,102,103" required />
+      <label for="date">Select Date:</label>
+      <input type="date" name="date" id="date" required />
+      <label for="time">Select Time:</label>
+      <input type="time" name="time" id="time" required />
+      <label for="num_slots">Number of Slots:</label>
+      <input type="number" name="num_slots" id="num_slots" min="1" required />
+      <button type="button" onclick="submitReservation()">Reserve</button>
+    </form>
+
+    <!-- Buttons for dynamically added reservations -->
+    <div id="reservationButtonsContainer" style="margin-top: 2rem;">
+      <h2>Your Reservations</h2>
+      <div id="seatButtons"></div>
+    </div>
+  </main>
+  <footer>© 2025 Blu-Reserve</footer>
+
+  <script>
+    const empId = "{{ emp_id }}";  // Flask will dynamically insert this value
+
+    // Function to display reservation buttons
+    function generateSeatButtons(reservationId) {
+      const seatButtonsContainer = document.getElementById("seatButtons");
+      const button = document.createElement("button");
+      button.innerText = `View Reservation ${reservationId}`;
+      button.setAttribute("data-reservation-id", reservationId);  // Attach reservation_id as data attribute
+      button.onclick = function () {
+        window.location.href = `/confirmation/${reservationId}`;  // Navigate to confirmation page
+      };
+      seatButtonsContainer.appendChild(button);
+    }
+
+    // Send reservation request to the backend
+    function submitReservation() {
+      const seatIds = document.getElementById("seat_ids").value;
+      const date = document.getElementById("date").value;
+      const time = document.getElementById("time").value;
+      const numSlots = document.getElementById("num_slots").value;
+
+      // Validate seat IDs as comma-separated values
+      if (!seatIds.match(/^(\d+,)*\d+$/)) {
+        alert("Seat IDs must be a comma-separated list of numbers.");
+        return;
+      }
+
+      const data = {
+        emp_id: empId,
+        seat_ids: seatIds.split(",").map(id => id.trim()),
+        date: date,
+        time: time,
+        number_of_slots: numSlots
+      };
+
+      fetch(`/seats/reservation/${empId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(responseData => {
+        console.log("Response data:", responseData);
+        if (responseData.status) {
+          const reservationId = responseData.reservation_id;
+          alert(`Reservation successful! Reservation ID: ${reservationId}`);
+
+          // After successful reservation, generate the reservation button
+          generateSeatButtons(reservationId);
+
+          // Optionally, redirect back to the dashboard or stay on the current page
+          // window.location.href = `/dashboard/${empId}`;
+        } else {
+          alert("Reservation failed. Please try again.");
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        alert("An error occurred while making the reservation.");
+      });
+    }
+  </script>
+</body>
+</html>

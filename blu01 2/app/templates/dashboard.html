@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employee Dashboard</title>
+  <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+<body>
+  <header>Employee Dashboard</header>
+  <main>
+    <h1>Upcoming Reservations</h1>
+    <div id="reservations-list">
+      <!-- Buttons will be appended here dynamically -->
+    </div>    
+    <button type = "button" onclick="window.location.href=`http://localhost:5000/reserve`" style="background: #000;color:rgb(243, 197, 182)">Reserve a New Seat</button>
+  </main>
+  <footer>© 2025 Blu-Reserve</footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const empId = new URL(window.location.href).pathname.split('/')[2];  // Get emp_id from URL
+        const reservationsList = document.getElementById("reservations-list");
+
+        fetch(`/seats/reservation?emp_id=${empId}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(reservation => {
+                // Create a button element for each reservation
+                const button = document.createElement("button");
+                button.innerHTML = `Date: ${reservation.date} | Time: ${reservation.time} | Slots: ${reservation.Number_of_slots}`;
+                
+                // Set the reservation_id as a data attribute
+                button.setAttribute("data-reservation-id", reservation.reservation_id);
+
+                // Add event listener to handle button click and redirect to confirmation page
+                button.addEventListener("click", function () {
+                    const reservationId = button.getAttribute("data-reservation-id");
+                    window.location.href = `/confirmation/${empId}/${reservationId}`;  // Redirect to confirmation page
+                });
+
+                // Append the button to the reservations list container
+                reservationsList.appendChild(button);
+            });
+        })
+        .catch(error => console.error("Error:", error));
+    });
+</script> 
+</body>
+</html> 
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employee Dashboard</title>
+  <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+<body>
+  <header>Employee Dashboard</header>
+  <main>
+    <h1>Upcoming Reservations</h1>
+    <ul id="reservations-list"></ul>
+    <button type="button" onclick="window.location.href=`/reserve/${empId}`">Reserve a New Seat</button>
+  </main>
+  <footer>© 2025 Blu-Reserve</footer>
+  <script>
+    const empId = {emp_id};
+    const reservationsList = document.getElementById("reservations-list");
+    fetch(`/seats/reservation/${empId}`)
+      .then(response => response.json())
+      .then(data => {
+        data.forEach(reservation => {
+          const listItem = document.createElement("li");
+          listItem.textContent = `${reservation.date} - ${reservation.time} - ${reservation.Number_of_slots} slots`;
+          reservationsList.appendChild(listItem);
+        });
+      })
+      .catch(error => console.error("Error fetching reservations:", error));
+  </script>
+</body>
+</html>-->

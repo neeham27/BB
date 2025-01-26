@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test PUT Requests</title>
+</head>
+<body>
+    <h1>Test PUT Requests</h1>
+
+    <h2>Employee Verification</h2>
+    <form id="employee-verification-form">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username"><br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password"><br><br>
+        <input type="submit" value="Verify Employee">
+    </form>
+
+    <h2>Cancel Reservation</h2>
+    <form id="cancellation-form">
+        <label for="reservation_id">Reservation ID:</label>
+        <input type="text" id="reservation_id" name="reservation_id"><br><br>
+        <input type="submit" value="Cancel Reservation">
+    </form>
+
+    <h2>Approve Fund Usage</h2>
+    <form id="fund-updation-form">
+        <label for="emp_id">Employee ID:</label>
+        <input type="text" id="emp_id" name="emp_id"><br><br>
+        <label for="amount">Amount:</label>
+        <input type="text" id="amount" name="amount"><br><br>
+        <input type="submit" value="Increase Fund Amount">
+    </form>
+
+    <h2>Seat Reservation</h2>
+    <form id="seat-reservation-form">
+        <label for="reservation_emp_id">Employee ID:</label>
+        <input type="text" id="reservation_emp_id" name="reservation_emp_id"><br><br>
+        <label for="seat_ids">Seat IDs (comma separated):</label>
+        <input type="text" id="seat_ids" name="seat_ids"><br><br>
+        <label for="reservation_date">Date:</label>
+        <input type="date" id="reservation_date" name="reservation_date"><br><br>
+        <label for="reservation_time">Time:</label>
+        <input type="time" id="reservation_time" name="reservation_time"><br><br>
+        <label for="num_slots">Number of Slots:</label>
+        <input type="number" id="num_slots" name="num_slots" min="1"><br><br>
+        <input type="submit" value="Reserve Seats">
+    </form>
+
+    <script>
+        // Employee verification form submission
+        document.getElementById('employee-verification-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            fetch('http://localhost:5000/employee/verification', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    alert('Employee Verified');
+                } else {
+                    alert('Invalid credentials');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        // Reservation cancellation form submission
+        document.getElementById('cancellation-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const reservation_id = document.getElementById('reservation_id').value;
+
+            fetch('http://localhost:5000/seats/cancellation', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ reservation_id })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    alert('Reservation Cancelled');
+                } else {
+                    alert('Reservation not found');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        // Fund approval form submission
+        document.getElementById('fund-updation-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const emp_id = document.getElementById('emp_id').value;
+            const amount = document.getElementById('amount').value;
+
+            fetch('http://localhost:5000/manager/fund_updation', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ emp_id, amount })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    alert('Funds Updated');
+                } else {
+                    alert('Invalid Data');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        // Seat reservation form submission
+        document.getElementById('seat-reservation-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const emp_id = document.getElementById('reservation_emp_id').value;
+            const seat_ids = document.getElementById('seat_ids').value.split(',').map(id => id.trim());  // Convert comma-separated input to an array
+            const date = document.getElementById('reservation_date').value;
+            const time = document.getElementById('reservation_time').value;
+            const num_slots = document.getElementById('num_slots').value;
+
+            fetch('http://localhost:5000/seats/reservation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ emp_id, seat_ids, date, time, number_of_slots: num_slots })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    alert('Seats Reserved, Reservation ID: ' + data.reservation_id);
+                } else {
+                    alert('Failed to reserve seats');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>

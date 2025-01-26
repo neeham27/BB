@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manager Dashboard</title>
+  <link rel="stylesheet" href="/app/static/css/styles.css">
+</head>
+<body>
+  <header>Manager Dashboard</header>
+  <main>
+    <h1>Welcome, {{ manager_name }}</h1>
+    <div style="margin-bottom: 2rem; text-align: center;">
+      <h2>Total Fee for the Month:</h2>
+      <p style="font-size: 1.5rem; color: #007bff;"><strong>{{ total_fee }}</strong> Blu Dollars</p>
+    </div>
+    <div>
+      <h2>Employee Bookings Analytics:</h2>
+      <ul style="list-style: none; padding: 0; margin-bottom: 1.5rem;">
+        <li><strong>Total Bookings:</strong> {{ total_bookings }}</li>
+        <li><strong>Most Booked Slot:</strong> {{ most_booked_slot }}</li>
+        <li><strong>Most Popular Seating:</strong> {{ popular_seating }}</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Booking Details:</h2>
+      <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+        <thead>
+          <tr style="background-color: #007bff; color: white;">
+            <th style="padding: 0.8rem; border: 1px solid #ccc;">Employee Name</th>
+            <th style="padding: 0.8rem; border: 1px solid #ccc;">Date</th>
+            <th style="padding: 0.8rem; border: 1px solid #ccc;">Time</th>
+            <th style="padding: 0.8rem; border: 1px solid #ccc;">Seating</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for booking in bookings %}
+          <tr>
+            <td style="padding: 0.8rem; border: 1px solid #ccc;">{{ booking.employee_name }}</td>
+            <td style="padding: 0.8rem; border: 1px solid #ccc;">{{ booking.date }}</td>
+            <td style="padding: 0.8rem; border: 1px solid #ccc;">{{ booking.time }}</td>
+            <td style="padding: 0.8rem; border: 1px solid #ccc;">{{ booking.seating }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+  <footer>© 2025 Blu-Reserve</footer>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seat Reservation App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    h1, h2 {
+      margin: 20px 0;
+    }
+    .floor {
+      margin: 30px 0;
+    }
+    .tables {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 50px;
+    }
+    .table-container {
+      position: relative;
+      width: 140px;
+      height: 140px;
+    }
+    .table {
+      width: 80px;
+      height: 80px;
+      background-color: lightblue; /* Brown for the table */
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .chair {
+      width: 40px;
+      height: 40px;
+      background-color: #4CAF50; /* Green for available chairs */
+      border: 1px solid #ddd;
+      position: absolute;
+      cursor: pointer;
+    }
+    .chair.taken {
+      background-color: #ccc; /* Gray for taken chairs */
+      cursor: not-allowed;
+    }
+    .chair.selected {
+      background-color: #FF5722; /* Orange for selected chairs */
+    }
+    .chair.top {
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .chair.bottom {
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .chair.left {
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .chair.right {
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .legend {
+      margin-top: 20px;
+    }
+    .legend div {
+      display: inline-block;
+      margin: 0 15px;
+    }
+    .box {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      margin-right: 5px;
+    }
+    .confirm-section {
+      margin-top: 30px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #1976D2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Select your seats</h1>
+  <!-- Floor 1 -->
+  <div class="floor">
+    <h2>Floor 1</h2>
+    <div class="tables" id="floor1"></div>
+  </div>
+  <!-- Floor 2 -->
+  <div class="floor">
+    <h2>Floor 2</h2>
+    <div class="tables" id="floor2"></div>
+  </div>
+  <!-- Floor 3 -->
+  <div class="floor">
+    <h2>Floor 3</h2>
+    <div class="tables" id="floor3"></div>
+  </div>
+  <!-- Legends -->
+  <div class="legend">
+    <div><span class="box" style="background-color: #4CAF50;"></span> Available</div>
+    <div><span class="box" style="background-color: #ccc;"></span> Taken</div>
+    <div><span class="box" style="background-color: #FF5722;"></span> Selected</div>
+  </div>
+  <!-- Confirm Section -->
+  <div class="confirm-section">
+    <button id="confirmButton">Confirm</button>
+    <p id="selectedCount">Seats selected: 0</p>
+    <p id="selectedIds">Selected Chair IDs: None</p>
+  </div>
+  <script>
+    const totalChairs = 100; // Total number of chairs
+    const floors = ["floor1", "floor2", "floor3"];
+    const tablesPerFloor = Math.floor(totalChairs / floors.length / 4); // Number of tables per floor
+    const remainingChairs = totalChairs % (floors.length * 4); // Extra chairs
+    // Taken chairs (IDs)
+    const takenChairs = [5, 12, 15, 25, 50, 80, 95]; // Example taken chair IDs
+    // Generate tables and chairs
+    let chairId = 1; // Start chair ID
+    floors.forEach((floor, index) => {
+      const container = document.getElementById(floor);
+      const numTables = index === floors.length - 1 ? tablesPerFloor + Math.ceil(remainingChairs / 4) : tablesPerFloor;
+      for (let t = 0; t < numTables; t++) {
+        const tableContainer = document.createElement("div");
+        tableContainer.classList.add("table-container");
+        const table = document.createElement("div");
+        table.classList.add("table");
+        tableContainer.appendChild(table);
+        // Create 4 chairs around the table
+        ["top", "right", "bottom", "left"].forEach((position) => {
+          if (chairId > totalChairs) return; // Stop when all chairs are created
+          const chair = document.createElement("div");
+          chair.classList.add("chair", position);
+          // Assign chair ID
+          chair.dataset.id = chairId;
+          // Mark taken chairs
+          if (takenChairs.includes(chairId)) {
+            chair.classList.add("taken");
+          }
+          tableContainer.appendChild(chair);
+          chairId++;
+        });
+        container.appendChild(tableContainer);
+      }
+    });
+    // Selection logic
+    let selectedSeats = [];
+    document.body.addEventListener("click", (event) => {
+      const chair = event.target;
+      if (chair.classList.contains("chair") && !chair.classList.contains("taken")) {
+        chair.classList.toggle("selected");
+        const chairId = chair.dataset.id;
+        if (chair.classList.contains("selected")) {
+          selectedSeats.push(chairId);
+        } else {
+          selectedSeats = selectedSeats.filter((id) => id !== chairId);
+        }
+        document.getElementById("selectedCount").textContent = `Seats selected: ${selectedSeats.length}`;
+        document.getElementById("selectedIds").textContent = `Selected Chair IDs: ${
+          selectedSeats.length > 0 ? selectedSeats.join(", ") : "None"
+        }`;
+      }
+    });
+    // Confirm button logic
+    document.getElementById("confirmButton").addEventListener("click", () => {
+      if (selectedSeats.length === 0) {
+        alert("No seats selected.");
+      } else {
+        alert(`You have selected ${selectedSeats.length} seat(s): ${selectedSeats.join(", ")}`);
+      }
+    });
+  </script>
+</body>
+</html>
